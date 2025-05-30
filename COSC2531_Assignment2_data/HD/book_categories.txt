@@ -1,0 +1,10 @@
+01, Fantasy, Rental, 0.5, 0.4, Harry Potter 1, Harry Potter 2, Harry Potter 3, Harry Potter, The Hobbit
+02, Crime, Rental, 0.5, 0.4, Gone Girl, Sherlock Holmes 1, Sherlock Holmes 2, Sherlock Holmes
+03, Classics, Rental, 0.3, 0.25, Pride and Prejudice
+04, Modern Classics, Rental, 0.4, 0.3, To Kill a Mockingbird, The Rabbit 1, The Rabbit 2, The Rabbit
+05, History, Rental, 0.4, 0.3, The Diary of a Young Girl
+06, Philosophy, Rental, 0.3, 0.25, The Republic
+07, Science, Rental, 0.5, 0.4, A Brief History of Time
+08, Textbooks, Reference, 0.75, 0.6, Introduction to the Theory of Computation
+09, Art, Rental, 0.5, 0.4, The Story of Art
+10, Other, Reference, 0.5, 0.4, Thinking Fast and Slow, Atomic Habits

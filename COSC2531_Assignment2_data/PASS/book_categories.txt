@@ -1,0 +1,10 @@
+01, Fantasy, 0.5, 0.4, Harry Potter 1, Harry Potter 2, Harry Potter 3, The Hobbit
+02, Crime, 0.5, 0.4, Gone Girl, Sherlock Holmes 1, Sherlock Holmes 2
+03, Classics, 0.3, 0.25, Pride and Prejudice
+04, Modern Classics, 0.4, 0.3, To Kill a Mockingbird, The Rabbit 1, The Rabbit 2
+05, History, 0.4, 0.3, The Diary of a Young Girl
+06, Philosophy, 0.3, 0.25, The Republic
+07, Science, 0.5, 0.4, A Brief History of Time
+08, Textbooks, 0.75, 0.6, Introduction to the Theory of Computation
+09, Art, 0.5, 0.4, The Story of Art
+10, Other, 0.5, 0.4, Thinking Fast and Slow, Atomic Habits
