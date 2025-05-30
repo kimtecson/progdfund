@@ -1,10 +1,14 @@
 C, 01, Chloe, na, na, na
 M, 05, Ethan, 0.12, na, na
 C, 12, Mia, na, na, na
-G, 16, Noah, 0.12, 1.0, 14
+G, 16, Noah, 0.12, 1.0, 4
 M, 22, Olivia, 0.12, na, na
 G, 30, Lucas, 0.12, 1.2, 25
 C, 36, Grace, na, na, na
 M, M008, kim, 0.12, na, na
 M, M009, marc, 0.12, na, na
 M, M010, k, 0.12, na, na
+M, M011, kl, 0.12, na, na
+M, M012, lo, 0.12, na, na
+M, M013, w, 0.12, na, na
+M, M014, aa, 0.1, na, na

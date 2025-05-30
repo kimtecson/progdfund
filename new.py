@@ -27,17 +27,9 @@ class Customer:
     def __init__(self, customer_id, name):
         if not name.replace(' ', '').isalpha():
             raise InvalidNameError("Name must contain only alphabet characters and spaces")
-        self.__id = customer_id
-        self.__name = name
+        self.id = customer_id
+        self.name = name
         self.customer_type = 'C'
-
-    @property
-    def id(self):
-        return self.__id
-
-    @property
-    def name(self):
-        return self.__name
 
     def display_info(self):
         print(f"ID: {self.id}, Name: {self.name}")
@@ -50,7 +42,7 @@ class Member(Customer):
         super().__init__(customer_id, name)
         self.customer_type = 'M'
         if discount_rate is not None:
-            Member.__discount_rate = discount_rate
+            self.__discount_rate = discount_rate
 
     @property
     def discount_rate(self):
@@ -65,7 +57,6 @@ class Member(Customer):
     def get_discount(self, rental_cost):
         return rental_cost * self.discount_rate
 
-
     def display_info(self):
         print(f"ID: {self.id}, Name: {self.name}, Discount Rate: {self.discount_rate*100}%")
 
@@ -77,13 +68,13 @@ class GoldMember(Customer):
         super().__init__(customer_id, name)
         self.customer_type = 'G'
         if discount_rate is not None:
-            GoldMember.__gold_discount_rate = discount_rate
-        self.reward_rate = reward_rate
+            self.__gold_discount_rate = discount_rate
+        self.__reward_rate = reward_rate
         self.reward_points = reward_points
 
     @property
     def discount_rate(self):
-        return GoldMember.__gold_discount_rate
+        return self.__gold_discount_rate
 
     @property
     def reward_rate(self):
@@ -93,7 +84,7 @@ class GoldMember(Customer):
     def set_discount_rate(new_rate):
         if not 0 < new_rate < 1:
             raise ValueError("Discount rate must be between 0 and 1")
-        GoldMember.__gold_discount_rate = new_rate
+        GoldMember.gold_discount_rate = new_rate
 
     def get_discount(self, rental_cost):
         return rental_cost * self.discount_rate
@@ -126,25 +117,9 @@ class GoldMember(Customer):
 class Book:
     """Class representing a book"""
     def __init__(self, book_id, name, category=None):
-        self.__id = book_id
-        self.__name = name
-        self.__category = category
-
-    @property
-    def id(self):
-        return self.__id
-
-    @property
-    def name(self):
-        return self.__name
-
-    @property
-    def category(self):
-        return self.__category
-
-    @category.setter
-    def category(self, category):
-        self.__category = category
+        self.id = book_id
+        self.name = name
+        self.category = category
 
     def get_price(self, days):
         if self.category:
@@ -158,20 +133,12 @@ class Book:
 class BookCategory:
     """Class representing a book category"""
     def __init__(self, category_id, name, price_1, price_2, category_type="Rental"):
-        self.__id = category_id
-        self.__name = name
+        self.id = category_id
+        self.name = name
         self.price_1 = price_1  # Price per day for first tier
         self.price_2 = price_2  # Price per day for second tier
         self.__type = category_type
         self.books = []
-
-    @property
-    def id(self):
-        return self.__id
-
-    @property
-    def name(self):
-        return self.__name
 
     @property
     def type(self):
@@ -207,7 +174,6 @@ class BookCategory:
               f"Price 1: {self.price_1}, Price 2: {self.price_2}, Books: {', '.join(book_names)}")
 
 class BookSeries(Book):
-    """Class representing a book series (CREDIT level)"""
     def __init__(self, series_id, name, books):
         super().__init__(series_id, name)
         self.books = books
@@ -254,7 +220,7 @@ class Rental:
             if points_to_use > 0:
                 deduction = points_to_use / 20  # Every 20 points = 1 AUD
                 temp_total -= deduction
-                self.customer.reward_points -= points_touse
+                self.customer.reward_points -= points_to_use
 
             self.total_cost = temp_total
             # Still add new rewards even if we used some points
@@ -789,6 +755,7 @@ class Operations:
                 self.records.customers.append(member)
                 # Update the customer reference
                 customer = member
+                print(customer.discount_rate)
                 print(f"{customer.name} has been registered as a Member.")
 
         # Create and process rental
