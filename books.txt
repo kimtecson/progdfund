@@ -16,6 +16,3 @@ B15, Introduction to the Theory of Computation
 B16, The Story of Art
 B17, Thinking Fast and Slow
 B18, Atomic Habits
-S01, Harry Potter, Harry Potter 1, Harry Potter 2, Harry Potter 3
-S02, Sherlock Holmes, Sherlock Holmes 1, Sherlock Holmes 2
-S03, The Rabbit, The Rabbit 1, The Rabbit 2

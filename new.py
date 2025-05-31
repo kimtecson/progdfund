@@ -22,6 +22,7 @@ class ReferenceBookLimitError(Exception):
     pass
 
 
+
 class Customer:
 
     def __init__(self, customer_id, name):
@@ -173,16 +174,11 @@ class BookCategory:
         print(f"ID: {self.id}, Name: {self.__name}, Type: {self.type}, "
               f"Price 1: {self.price_1}, Price 2: {self.price_2}, Books: {', '.join(book_names)}")
 
-class BookSeries(Book):
-    def __init__(self, series_id, name, books):
-        super().__init__(series_id, name)
+class BookSeries:
+    def __init__(self, series_id, books):
+        self.id = series_id
         self.books = books
-        # All books in series should belong to same category
-        if books:
-            self.category = books[0].category
-            for book in books:
-                if book.category != self.category:
-                    raise ValueError("All books in series must belong to same category")
+        #assume all books of a book series are existing books in the system and all books from a book series belong to the same book category.
 
     def get_price(self, days):
         # Price is 50% of total individual book prices
@@ -192,7 +188,7 @@ class BookSeries(Book):
     def display_info(self):
         book_names = [book.name for book in self.books]
         category_name = self.category.name if self.category else "None"
-        print(f"ID: {self.id}, Name: {self.name}, Category: {category_name}, "
+        print(f"ID: {self.id}, Category: {category_name}, "
               f"Books in Series: {', '.join(book_names)}")
 
 # Order Class
@@ -263,7 +259,7 @@ class Records:
 
     def read_customers(self, filename):
         """Read customer data from file"""
-        try:
+        try: #implement defensive programming stop using try catch
             with open(filename, 'r') as file:
                 for line in file:
                     parts = [part.strip() for part in line.split(',')]
@@ -275,6 +271,7 @@ class Records:
                     name = parts[2]
 
                     try:
+                        #switch case
                         if customer_type == 'C':
                             self.customers.append(Customer(customer_id, name))
                         elif customer_type == 'M':
@@ -292,29 +289,26 @@ class Records:
 
     def read_books_and_book_categories(self, books_file, categories_file):
         """Read book and category data from files"""
-        # First read all books
+        # update book series implementation
         try:
             with open(books_file, 'r') as file:
                 for line in file:
                     parts = [part.strip() for part in line.split(',')]
-                    if len(parts) >= 2:
-                        book_id = parts[0]
-                        book_name = parts[1]
-                        # Check if it's a book series (CREDIT level)
-                        if book_id.startswith('S') and len(parts) > 2:
-                            # Find component books
-                            component_books = []
-                            for book_name in parts[2:]:
-                                book = self.find_book(book_name)
-                                if book:
-                                    component_books.append(book)
-                            if component_books:
-                                try:
-                                    self.books.append(BookSeries(book_id, parts[1], component_books))
-                                except ValueError as e:
-                                    print(f"Error creating book series: {e}")
-                        else:
-                            self.books.append(Book(book_id, book_name))
+                    # Skip lines without at least ID and name
+                    if len(parts) < 2:
+                        continue
+
+                    book_id, book_name = parts[0], parts[1]
+
+                    # Handle Book Series (ID starts with 'S')
+                    if book_id.startswith('S'):
+                        component_books = []
+
+                        # Create Book objects for all components
+                        component_books = parts[1:]
+                        print(component_books)
+                    else:
+                        self.books.append(Book(book_id, book_name))
         except FileNotFoundError:
             raise FileNotFoundError(f"Book file {books_file} not found")
 
@@ -326,13 +320,13 @@ class Records:
                     if len(parts) >= 5:
                         category_id = parts[0]
                         category_name = parts[1]
-                        # Check if type is specified (CREDIT level)
+                        # Check if type is specified
                         if parts[2] in ['Rental', 'Reference']:
                             category_type = parts[2]
                             price_1 = float(parts[3])
                             price_2 = float(parts[4])
                             book_names = parts[5:]
-                        else:  # PASS level format
+                        else:
                             category_type = "Rental"
                             price_1 = float(parts[2])
                             price_2 = float(parts[3])
@@ -418,13 +412,27 @@ class Records:
             customer.display_info()
         print()
 
-    def list_books(self):
-        """Display all books"""
-        print("\nList of Books:")
-        for book in self.books:
-            book.display_info()
-        print()
+    # def list_books(self):
+    #     """Display all books"""
+    #     print("\nList of Books:")
+    #     for book in self.books:
+    #         book.display_info()
+    #     print()
 
+    def list_books(self):
+        """Display all books and series with their components"""
+        print("\n=== Books ===")
+        for book in self.books:
+            if not isinstance(book, BookSeries):  # Regular book
+                book.display_info()
+
+        print("\n=== Book Series ===")
+        for book in self.books:
+            if isinstance(book, BookSeries):  # Series
+                book.display_info()
+                print(f"   Components: {', '.join(book.component_books)}")
+
+        print()
     def list_book_categories(self):
         """Display all book categories"""
         print("\nList of Book Categories:")
@@ -1096,6 +1104,7 @@ class Operations:
             except Exception as e:
                 print(f"An error occurred: {e}")
 
+
 # Main Program
 if __name__ == "__main__":
     try:
@@ -1107,5 +1116,5 @@ if __name__ == "__main__":
         print("Goodbye!")
     except Exception as e:
         print("Fatal error:")
-        traceback.print_exc()  # ✅ Shows full stack trace
+        traceback.print_exc() #delete before submitting
         sys.exit(1)
