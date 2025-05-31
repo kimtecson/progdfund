@@ -186,10 +186,11 @@ class BookSeries:
         return total * 0.5
 
     def display_info(self):
-        book_names = [book.name for book in self.books]
-        category_name = self.category.name if self.category else "None"
-        print(f"ID: {self.id}, Category: {category_name}, "
-              f"Books in Series: {', '.join(book_names)}")
+        book_names = [book.name for book in self.books if book]
+
+        print(f"ID: {self.id}, Books in Series: {', '.join(book_names)}")
+
+
 
 # Order Class
 class Rental:
@@ -305,8 +306,11 @@ class Records:
                         component_books = []
 
                         # Create Book objects for all components
-                        component_books = parts[1:]
-                        print(component_books)
+                        for name in parts[1:]:
+                            book = self.find_book(name)
+                            component_books.append(book)
+                        if component_books:
+                            self.books.append(BookSeries(book_id, component_books))
                     else:
                         self.books.append(Book(book_id, book_name))
         except FileNotFoundError:
@@ -399,11 +403,13 @@ class Records:
         return None
 
     def find_book(self, search_value):
-        """Find book by ID or name"""
         for book in self.books:
-            if book.id.lower() == search_value.lower() or book.name.lower() == search_value.lower():
+            if book.id.lower() == search_value.lower():
+                return book
+            if isinstance(book, Book) and book.name.lower() == search_value.lower():
                 return book
         return None
+
 
     def list_customers(self):
         """Display all customers"""
@@ -412,27 +418,19 @@ class Records:
             customer.display_info()
         print()
 
-    # def list_books(self):
-    #     """Display all books"""
-    #     print("\nList of Books:")
-    #     for book in self.books:
-    #         book.display_info()
-    #     print()
-
     def list_books(self):
-        """Display all books and series with their components"""
-        print("\n=== Books ===")
+        """Display all books"""
+        print("\nList of Books:")
         for book in self.books:
-            if not isinstance(book, BookSeries):  # Regular book
-                book.display_info()
-
-        print("\n=== Book Series ===")
-        for book in self.books:
-            if isinstance(book, BookSeries):  # Series
-                book.display_info()
-                print(f"   Components: {', '.join(book.component_books)}")
-
+            book.display_info()
         print()
+        """Display all book series"""
+        print("\nList of Book Series:")
+        for book in self.books:
+            if isinstance(book, BookSeries):
+                book.display_info()
+        print()
+
     def list_book_categories(self):
         """Display all book categories"""
         print("\nList of Book Categories:")
@@ -586,7 +584,7 @@ class Records:
             for book in self.books:
                 if isinstance(book, BookSeries):
                     book_names = [b.name for b in book.books]
-                    file.write(f"{book.id}, {book.name}, {', '.join(book_names)}\n")
+                    file.write(f"{book.id}, {', '.join(book_names)}\n")
                 else:
                     file.write(f"{book.id}, {book.name}\n")
 
