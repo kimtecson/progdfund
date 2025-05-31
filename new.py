@@ -238,7 +238,12 @@ class Rental:
         print("---")
         print("Books rented:")
         for book, days in self.books_and_days:
-            print(f"- {book.name} for {days} days")
+            if isinstance(book, BookSeries):
+                book_titles = ', '.join(b.name for b in book.books if b)
+                print(f"- Book Series [{book.id}]: {book_titles} for {days} days")
+            else:
+                print(f"- {book.name} for {days} days")
+
         print("---")
         print(f"Original cost: {self.original_cost:.2f} (AUD)")
         print(f"Discount: {self.discount:.2f} (AUD)")
@@ -598,58 +603,7 @@ class Records:
         self.save_customers(customer_file)
         self.save_books_and_categories(book_file, category_file)
         self.save_rentals(rental_file)
-    # def save_data(self, customer_file, book_file, category_file, rental_file):
-    #     # Save customers
-    #     if self.customers_modified:
-    #         with open(customer_file, 'w') as file:
-    #             for customer in self.customers:
-    #                 if isinstance(customer, GoldMember):
-    #                     file.write(f"G, {customer.id}, {customer.name}, "
-    #                             f"{customer.discount_rate}, {customer.reward_rate}, {customer.reward_points}\n")
-    #                 elif isinstance(customer, Member):
-    #                     file.write(f"M, {customer.id}, {customer.name}, {customer.discount_rate}, na, na\n")
-    #                 else:
-    #                     file.write(f"C, {customer.id}, {customer.name}, na, na, na\n")
 
-    #     # Save books (simplified - doesn't preserve series relationships)
-    #     with open(book_file, 'w') as file:
-    #         for book in self.books:
-    #             if isinstance(book, BookSeries):
-    #                 book_names = [b.name for b in book.books]
-    #                 file.write(f"{book.id}, {book.name}, {', '.join(book_names)}\n")
-    #             else:
-    #                 file.write(f"{book.id}, {book.name}\n")
-
-    #     # Save categories
-    #     with open(category_file, 'w') as file:
-    #         for category in self.book_categories:
-    #             book_names = [book.name for book in category.books]
-    #             file.write(f"{category.id}, {category.name}, {category.type}, "
-    #                       f"{category.price_1}, {category.price_2}, {', '.join(book_names)}\n")
-
-    #     # Save rentals (HD level)
-    #     with open(rental_file, 'w') as file:
-    #         for rental in self.rentals:
-    #             customer = rental.customer
-    #             books_info = []
-    #             for book, days in rental.books_and_days:
-    #                 books_info.append(book.id)
-    #                 books_info.append(str(days))
-
-    #             if isinstance(customer, GoldMember):
-    #                 file.write(f"{customer.id}, {', '.join(books_info)}, "
-    #                           f"{rental.original_cost:.2f}, {rental.discount:.2f}, {rental.total_cost:.2f}, {rental.reward}, "
-    #                           f"{rental.timestamp.strftime('%d/%m/%Y %H:%M:%S')}\n")
-    #             elif isinstance(customer, Member):
-    #                 file.write(f"{customer.id}, {', '.join(books_info)}, "
-    #                           f"{rental.original_cost:.2f}, {rental.discount:.2f}, {rental.total_cost:.2f}, na, "
-    #                           f"{rental.timestamp.strftime('%d/%m/%Y %H:%M:%S')}\n")
-    #             else:
-    #                 file.write(f"{customer.id}, {', '.join(books_info)}, "
-    #                           f"{rental.original_cost:.2f}, 0.00, {rental.total_cost:.2f}, na, "
-    #                           f"{rental.timestamp.strftime('%d/%m/%Y %H:%M:%S')}\n")
-
-# Operations Class
 class Operations:
     def __init__(self):
         self.records = Records()
@@ -681,6 +635,94 @@ class Operations:
             print(f"Error: {e}")
             sys.exit(1)
 
+    # def rent_book(self):
+    #     """Handle book rental process"""
+    #     print("\nRent a Book")
+
+    #     customer = None
+    #     is_new_customer = False
+
+    #     while customer is None:
+    #         customer_input = input("Enter customer ID or name: ").strip()
+    #         if not customer_input:
+    #             print("Operation cancelled.")
+    #             return
+
+    #         existing_customer = self.records.find_customer(customer_input)
+    #         if existing_customer:
+    #             customer = existing_customer
+    #         else:
+    #             print("This customer is not in our system.")
+    #             name = customer_input
+    #             if name.replace(" ", "").isalpha():
+    #                 customer = Customer("TEMP", name)  # temporary ID
+    #                 customer = self.register_customer(customer)
+    #                 is_new_customer = True
+    #             else:
+    #                 print("Invalid name. Try again.")
+    #                 customer = None
+    #     # Get multiple books and days
+    #     books_and_days = []
+    #     while True:
+    #         # Get book
+    #         while True:
+    #             book_input = input("Enter book ID or name (or 'done' to finish): ").strip()
+    #             if book_input.lower() == 'done':
+    #                 break
+
+    #             found_book = book = self.records.find_book(book_input)
+    #             if found_book:
+    #                 # Check if book is reference type
+    #                 if book.category and book.category.type == "Reference":
+    #                     print("Note: This is a reference book with 14-day limit.")
+    #                 break
+    #             print("Book not found. Please try again.")
+
+    #         if book_input.lower() == 'done':
+    #             if not books_and_days:
+    #                 print("You must add at least one book")
+    #                 continue
+    #             break
+
+    #         # Get borrowing days
+    #         while True:
+    #             try:
+    #                 days = int(input(f"Enter number of borrowing days for {book.name}: "))
+    #                 if days <= 0:
+    #                     raise InvalidDaysError("Days must be positive")
+
+    #                 # Check reference book limit
+    #                 if book.category and book.category.type == "Reference" and days > 14:
+    #                     raise ReferenceBookLimitError("Reference books cannot be borrowed for more than 14 days")
+
+    #                 books_and_days.append((book, days))
+    #                 break
+    #             except ValueError:
+    #                 print("Please enter a valid number")
+    #             except (InvalidDaysError, ReferenceBookLimitError) as e:
+    #                 print(e)
+
+    #     # Ask to register if this was a new customer
+    #     if is_new_customer:
+    #         ans = input('Do you want to register as a member and get discounts? (y/n)').strip()
+    #         if ans.lower() == 'y':
+    #             # Remove the old temporary customer
+    #             if customer in self.records.customers:
+    #                 self.records.customers.remove(customer)
+    #             # Create a new Member instance with same ID and name
+    #             member = Member(customer.id, customer.name)
+    #             # Add the new Member to the records
+    #             self.records.customers.append(member)
+    #             # Update the customer reference
+    #             customer = member
+    #             print(customer.discount_rate)
+    #             print(f"{customer.name} has been registered as a Member.")
+
+    #     # Create and process rental
+    #     rental = Rental(customer, books_and_days)
+    #     rental.display_receipt()
+    #     self.records.add_rental(rental)
+
     def rent_book(self):
         """Handle book rental process"""
         print("\nRent a Book")
@@ -707,42 +749,53 @@ class Operations:
                 else:
                     print("Invalid name. Try again.")
                     customer = None
+
         # Get multiple books and days
         books_and_days = []
-        while True:
-            # Get book
-            while True:
+        done = False
+        while not done:
+            book = None
+            while book is None:
                 book_input = input("Enter book ID or name (or 'done' to finish): ").strip()
                 if book_input.lower() == 'done':
+                    done = True
                     break
 
-                book = self.records.find_book(book_input)
-                if book:
-                    # Check if book is reference type
-                    if book.category and book.category.type == "Reference":
+                found_book = self.records.find_book(book_input)
+                if found_book:
+                    book = found_book
+                    if isinstance(book, BookSeries):
+                        book_titles = ', '.join(b.name for b in book.books)
+                        print(f"Book Series selected: {book_titles}")
+                    elif book.category and book.category.type == "Reference":
                         print("Note: This is a reference book with 14-day limit.")
-                    break
-                print("Book not found. Please try again.")
+                else:
+                    print("Book not found. Please try again.")
 
-            if book_input.lower() == 'done':
+            if done:
                 if not books_and_days:
                     print("You must add at least one book")
-                    continue
-                break
+                    done = False
+                continue
 
             # Get borrowing days
-            while True:
+            valid_days = False
+            while not valid_days:
                 try:
-                    days = int(input(f"Enter number of borrowing days for {book.name}: "))
+                    if isinstance(book, BookSeries):
+                        days = int(input(f"Enter number of borrowing days for the series ({book.id}): "))
+                    else:
+                        days = int(input(f"Enter number of borrowing days for {book.name}: "))
+
                     if days <= 0:
                         raise InvalidDaysError("Days must be positive")
 
-                    # Check reference book limit
-                    if book.category and book.category.type == "Reference" and days > 14:
-                        raise ReferenceBookLimitError("Reference books cannot be borrowed for more than 14 days")
+                    if not isinstance(book, BookSeries):
+                        if book.category and book.category.type == "Reference" and days > 14:
+                            raise ReferenceBookLimitError("Reference books cannot be borrowed for more than 14 days")
 
                     books_and_days.append((book, days))
-                    break
+                    valid_days = True
                 except ValueError:
                     print("Please enter a valid number")
                 except (InvalidDaysError, ReferenceBookLimitError) as e:
@@ -752,14 +805,10 @@ class Operations:
         if is_new_customer:
             ans = input('Do you want to register as a member and get discounts? (y/n)').strip()
             if ans.lower() == 'y':
-                # Remove the old temporary customer
                 if customer in self.records.customers:
                     self.records.customers.remove(customer)
-                # Create a new Member instance with same ID and name
                 member = Member(customer.id, customer.name)
-                # Add the new Member to the records
                 self.records.customers.append(member)
-                # Update the customer reference
                 customer = member
                 print(customer.discount_rate)
                 print(f"{customer.name} has been registered as a Member.")
@@ -768,7 +817,6 @@ class Operations:
         rental = Rental(customer, books_and_days)
         rental.display_receipt()
         self.records.add_rental(rental)
-
 
     def register_customer(self, customer):
         customer_id = f"M{len(self.records.customers) + 1:03d}"
